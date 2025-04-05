@@ -1,0 +1,9 @@
+[server]
+    port = 3007
+    enableStaticServing = true
+
+[theme]
+    base="light"
+
+[Client]
+    showSidebarNavigation = false

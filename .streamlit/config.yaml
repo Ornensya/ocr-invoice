@@ -1,0 +1,19 @@
+credentials:
+        usernames:
+                besty:
+                        email: besty@gmail.com
+                        name: Besty user
+                        password: $2y$12$d01bOJBQGapDZEmudpDs9uWEWzYD9t5KcInNsu3a2CB7PaTVch0eO # To be replaced with hashed password
+                admin:
+                        email: admin@gmail.com
+                        name: Admin user
+                        password: $2y$12$d01bOJBQGapDZEmudpDs9uWEWzYD9t5KcInNsu3a2CB7PaTVch0eO # To be replaced with hashed password
+
+cookie:
+        expiry_days: 30
+        key: random_signature_key # Must be string
+        name: cookie_beshie
+
+preauthorized:
+        emails:
+                - melsby@gmail.com

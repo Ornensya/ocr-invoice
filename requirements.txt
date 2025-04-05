@@ -1,0 +1,4 @@
+streamlit_pdf_viewer
+pytesseract
+pdf2image
+streamlit
