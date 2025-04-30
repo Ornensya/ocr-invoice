@@ -7,6 +7,9 @@ import os
 import pandas as pd
 from io import BytesIO
 import re
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Initialize OpenAI API
 api_key = os.getenv("OPENAI_API_KEY")
