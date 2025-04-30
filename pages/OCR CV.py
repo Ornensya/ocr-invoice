@@ -8,10 +8,14 @@ from openai import OpenAI
 import os
 from streamlit_pdf_viewer import pdf_viewer
 from streamlit import session_state as ss
+from dotenv import load_dotenv
 
+load_dotenv()
 # Initialize OpenAI API
 api_key = os.getenv("OPENAI_API_KEY")
-client = OpenAI(api_key=api_key) if api_key else None
+client = None
+if api_key:
+    client = OpenAI(api_key=api_key)
 
 poppler_path = r"C:\Program Files\poppler-24.07.0\Library\bin"
 
@@ -22,7 +26,7 @@ poppler_path = r"C:\Program Files\poppler-24.07.0\Library\bin"
 #     return extracted_text
 
 def extract_text_from_pdf(pdf_file):
-    images = convert_from_bytes(pdf_file.read(), poppler_path=poppler_path)
+    images = convert_from_bytes(pdf_file.read())
     text = "\n".join([pytesseract.image_to_string(img) for img in images])
     return text
 
@@ -76,7 +80,6 @@ def structure_cv_data(extracted_text):
     \n\nCV Text:
     {extracted_text}
     """
-
     response = client.chat.completions.create(
         model="gpt-4",
         messages=[
