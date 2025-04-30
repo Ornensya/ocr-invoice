@@ -119,39 +119,77 @@ def structure_invoice_data_with_llm(extracted_text):
 st.title("WiratekAI - Smart OCR")
 st.write("Upload receipt image to extract data.")
 
-uploaded_file = st.file_uploader("Select image file", type=["jpg", "jpeg", "png"])
+uploaded_file = st.file_uploader("Select image file", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
 
-if uploaded_file is not None:
-    # Menampilkan gambar yang diunggah
-    image = Image.open(uploaded_file)
-    st.image(image, caption="Uploaded image", width=400)
+# if uploaded_file:
+#     if st.button("Run Modeling"):
+#         for uploaded_file in uploaded_file:
+#             # Menampilkan gambar yang diunggah
+#             image = Image.open(uploaded_file)
+#             st.image(image, caption="Uploaded image", width=400)
 
-    # Proses OCR
-    extracted_text = process_invoice_image_without_model(uploaded_file)
+#             # Proses OCR
+#             extracted_text = process_invoice_image_without_model(uploaded_file)
 
-    # Proses LLM untuk struktur data
-    structured_invoice_data = structure_invoice_data_with_llm(extracted_text)
+#             # Proses LLM untuk struktur data
+#             structured_invoice_data = structure_invoice_data_with_llm(extracted_text)
 
-    # Menampilkan hasil dalam JSON
-    st.subheader("OCR Extraction Result (JSON):")
-    st.json(structured_invoice_data)
+#             # Menampilkan hasil dalam JSON
+#             st.subheader("OCR Extraction Result (JSON):")
+#             st.json(structured_invoice_data)
 
-    # # Menampilkan hasil dalam tabel
-    # st.subheader("Hasil Ekstraksi OCR dalam Tabel:")
+#             # # Menampilkan hasil dalam tabel
+#             # st.subheader("Hasil Ekstraksi OCR dalam Tabel:")
 
-    # if isinstance(structured_invoice_data, dict) and "error" not in structured_invoice_data:
-    #     flat_data = flatten_data(structured_invoice_data)
-    #     df_main = pd.DataFrame(flat_data, columns=["Kunci", "Nilai"])
-    #     st.table(df_main)
-    # else:
-    #     st.warning("Gagal menampilkan data dalam tabel.")
+#             # if isinstance(structured_invoice_data, dict) and "error" not in structured_invoice_data:
+#             #     flat_data = flatten_data(structured_invoice_data)
+#             #     df_main = pd.DataFrame(flat_data, columns=["Kunci", "Nilai"])
+#             #     st.table(df_main)
+#             # else:
+#             #     st.warning("Gagal menampilkan data dalam tabel.")
 
-    # Simpan ke Excel
-    if structured_invoice_data:
+#             # Simpan ke Excel
+#             if structured_invoice_data:
+#                 excel_file = save_to_excel(structured_invoice_data)
+#                 st.download_button(
+#                     label="Download File Excel",
+#                     data=excel_file,
+#                     file_name="invoice_data.xlsx",
+#                     mime="application/vnd.ms-excel",
+#                     key="download_result"
+#                 )
+
+if uploaded_file:
+    if st.button("Run Modeling"):
+        st.session_state.results = []  # Reset hasil lama
+
+        for idx, file in enumerate(uploaded_file):
+            image = Image.open(file)
+            st.image(image, caption=f"Uploaded image {idx + 1}", width=400)
+
+            extracted_text = process_invoice_image_without_model(file)
+            structured_invoice_data = structure_invoice_data_with_llm(extracted_text)
+
+            st.session_state.results.append({
+                "idx": idx + 1,
+                "image": image,
+                "data": structured_invoice_data
+            })
+
+# Tampilkan hasil jika sudah diproses
+if "results" in st.session_state:
+    for result in st.session_state.results:
+        idx = result["idx"]
+        structured_invoice_data = result["data"]
+
+        st.subheader(f"OCR Extraction Result (JSON) - File {idx}:")
+        st.json(structured_invoice_data)
+
         excel_file = save_to_excel(structured_invoice_data)
         st.download_button(
-            label="Download File Excel",
+            label=f"Download File Excel untuk Gambar {idx}",
             data=excel_file,
-            file_name="invoice_data.xlsx",
-            mime="application/vnd.ms-excel"
+            file_name=f"invoice_data_{idx}.xlsx",
+            mime="application/vnd.ms-excel",
+            key=f"download_result_{idx}"
         )
