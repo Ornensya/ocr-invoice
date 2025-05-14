@@ -16,7 +16,7 @@ api_key = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key) if api_key else None
 
 # Set path Tesseract (Sesuaikan dengan sistem Anda)
-pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 # Fungsi untuk meratakan struktur data menjadi key-value pairs
 def flatten_data(data, parent_key=""):

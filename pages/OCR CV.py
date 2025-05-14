@@ -114,40 +114,41 @@ st.caption("Upload CV PDF file for information extraction.")
 
 uploaded_file = st.file_uploader("Select PDF file", type=["pdf"])
 
-if uploaded_file is not None:
+if uploaded_file:
+    if st.button("Run Modeling"):
 
-    pdf_bytes = uploaded_file.getvalue()
+        pdf_bytes = uploaded_file.getvalue()
 
-    # Simpan ke session_state agar bisa diakses ulang
-    ss.pdf_ref = pdf_bytes
+        # Simpan ke session_state agar bisa diakses ulang
+        ss.pdf_ref = pdf_bytes
 
-    # Tampilkan PDF Viewer
-    pdf_viewer(input=pdf_bytes, width=700)
+        # Tampilkan PDF Viewer
+        pdf_viewer(input=pdf_bytes, width=700)
 
-    # st.write("Mengekstrak teks dari CV...") #Nanti coba pake st.spiner
-    extracted_text = extract_text_from_pdf(uploaded_file)
-    
-    # st.write("Menyusun data CV...")
-    structured_cv_data = structure_cv_data(extracted_text)
-    
-    # Menampilkan hasil dalam JSON
-    st.subheader("OCR Extraction Result (JSON):")
-    st.json(structured_cv_data)
-    
-    # # Menampilkan hasil dalam tabel
-    # if isinstance(structured_cv_data, dict) and "error" not in structured_cv_data:
-    #     df_main = pd.DataFrame([structured_cv_data])
-    #     st.subheader("Hasil Ekstraksi dalam Tabel:")
-    #     st.table(df_main)
-    # else:
-    #     st.warning("Gagal menampilkan data dalam tabel.")
-    
-    # Simpan ke Excel
-    if structured_cv_data:
-        excel_file = save_to_excel(structured_cv_data)
-        st.download_button(
-            label="Download File Excel",
-            data=excel_file,
-            file_name="cv_data.xlsx",
-            mime="application/vnd.ms-excel"
-        )
+        # st.write("Mengekstrak teks dari CV...") #Nanti coba pake st.spiner
+        extracted_text = extract_text_from_pdf(uploaded_file)
+        
+        # st.write("Menyusun data CV...")
+        structured_cv_data = structure_cv_data(extracted_text)
+        
+        # Menampilkan hasil dalam JSON
+        st.subheader("OCR Extraction Result (JSON):")
+        st.json(structured_cv_data)
+        
+        # # Menampilkan hasil dalam tabel
+        # if isinstance(structured_cv_data, dict) and "error" not in structured_cv_data:
+        #     df_main = pd.DataFrame([structured_cv_data])
+        #     st.subheader("Hasil Ekstraksi dalam Tabel:")
+        #     st.table(df_main)
+        # else:
+        #     st.warning("Gagal menampilkan data dalam tabel.")
+        
+        # Simpan ke Excel
+        if structured_cv_data:
+            excel_file = save_to_excel(structured_cv_data)
+            st.download_button(
+                label="Download File Excel",
+                data=excel_file,
+                file_name="cv_data.xlsx",
+                mime="application/vnd.ms-excel"
+            )

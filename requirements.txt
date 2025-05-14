@@ -1,4 +1,6 @@
 streamlit_pdf_viewer
-pytesseract
 pdf2image
 streamlit
+openpyxl
+openai
+python-dotenv
