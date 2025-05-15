@@ -19,8 +19,14 @@ load_dotenv()
 POPPLER_PATH = r"C:\Program Files\poppler-24.07.0\Library\bin"
 FONT_PATH = "C:/Windows/Fonts/arial.ttf"
 
+
 # Inisialisasi PaddleOCR
-ocr = PaddleOCR(use_angle_cls=True, lang='en')
+# ocr = PaddleOCR(use_angle_cls=True, lang='en')
+@st.cache_resource
+def load_ocr_model():
+    return PaddleOCR(use_angle_cls=True, lang='en')
+ocr = load_ocr_model()
+
 
 # OpenAI API Key
 api_key = os.getenv("OPENAI_API_KEY")
