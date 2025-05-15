@@ -147,6 +147,7 @@ def structure_invoice_data(extracted_text):
 
     try:
         return json.loads(structured_data)
+        
     except json.JSONDecodeError:
         return {"error": "❌ Gagal parsing JSON dari LLM."}
 
@@ -218,20 +219,6 @@ def save_to_excel(structured_invoice_data):
     output.seek(0)
     return output
 
-# --- Jalankan Pipeline ---
-# if uploaded_file and st.button("🚀 Jalankan OCR + Ekstraksi JSON"):
-#     with st.spinner("Sedang memproses..."):
-#         extracted_text = extract_text_with_paddleocr(uploaded_file)
-#         structured_data = structure_invoice_data(extracted_text)
-
-#         st.subheader("📋 Teks Hasil Ekstraksi:")
-#         st.text(extracted_text)
-
-#         st.subheader("🧾 Hasil JSON Terstruktur:")
-#         st.json(structured_data)
-
-#         excel_file = save_to_excel(structured_data)
-#         st.download_button("⬇️ Download Hasil Excel", data=excel_file, file_name="invoice_data.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
 if uploaded_file:
     if st.button("🚀 Jalankan OCR"):
