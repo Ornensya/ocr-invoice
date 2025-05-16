@@ -5,4 +5,4 @@ openpyxl
 openai
 python-dotenv
 paddleocr
-paddle
+paddlepadle
