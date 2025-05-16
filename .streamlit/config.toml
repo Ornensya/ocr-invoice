@@ -1,5 +1,4 @@
 [server]
-    port = 3007
     enableStaticServing = false
 
 
