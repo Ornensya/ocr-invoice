@@ -6,4 +6,4 @@ openai
 python-dotenv
 paddleocr
 paddlepaddle
-
+setuptools
