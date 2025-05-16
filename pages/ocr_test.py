@@ -17,7 +17,9 @@ load_dotenv()
 
 # Konfigurasi path
 POPPLER_PATH = r"C:\Program Files\poppler-24.07.0\Library\bin"
-FONT_PATH = "C:/Windows/Fonts/arial.ttf"
+# FONT_PATH = "C:/Windows/Fonts/arial.ttf"
+FONT_PATH = os.path.join(os.path.dirname(__file__), "..", "fonts", "arial.ttf")
+
 
 # OpenAI API Key
 api_key = os.getenv("OPENAI_API_KEY")
