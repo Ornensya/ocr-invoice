@@ -5,6 +5,3 @@
 
 [theme]
     base="light"
-
-[Client]
-    showSidebarNavigation = false
