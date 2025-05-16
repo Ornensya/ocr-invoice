@@ -1,6 +1,7 @@
 [server]
     port = 3007
-    enableStaticServing = true
+    enableStaticServing = false
+
 
 [theme]
     base="light"
