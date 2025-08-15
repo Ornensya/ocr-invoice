@@ -17,78 +17,47 @@ load_dotenv()
 
 # Konfigurasi path
 POPPLER_PATH = r"C:\Program Files\poppler-24.07.0\Library\bin"
-FONT_PATH = "C:/Windows/Fonts/arial.ttf"
+# FONT_PATH = "C:/Windows/Fonts/arial.ttf"
+FONT_PATH = os.path.join(os.path.dirname(__file__), "..", "fonts", "arial.ttf")
+
+
+# Inisialisasi PaddleOCR
+# ocr = PaddleOCR(use_angle_cls=True, lang='en')
+@st.cache_resource
+def load_ocr_model():
+    return PaddleOCR(use_angle_cls=True, lang='en')
+ocr = load_ocr_model()
+
 
 # OpenAI API Key
 api_key = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key) if api_key else None
-
-# --- Optimasi PaddleOCR ---
-@st.cache_resource
-def load_ocr_model():
-    return PaddleOCR(
-        use_angle_cls=False,
-        det_model_dir='models/en_PP-OCRv3_det_infer',
-        rec_model_dir='models/en_PP-OCRv3_rec_infer',
-        use_gpu=False,
-        lang='en'
-    )
-
-# cls_model_dir='models/ch_ppocr_mobile_v2.0_cls_infer',
-
-ocr = load_ocr_model()
-
-def resize_image(image_pil, scale=0.5):
-    w, h = image_pil.size
-    return image_pil.resize((int(w * scale), int(h * scale)))
-
-@st.cache_data(show_spinner="🔍 Menjalankan OCR...")
-def run_ocr_cached(image_np):
-    return ocr.ocr(image_np, cls=False)
-
-def extract_text_with_paddleocr(pdf_file):
-    images = convert_from_bytes(pdf_file.read())
-    extracted_text = ""
-    for image in images:
-        image = resize_image(image, scale=0.5)
-        image_np = np.array(image)
-        result = run_ocr_cached(image_np)
-
-        boxes = [line[0] for line in result[0]]
-        txts = [line[1][0] for line in result[0]]
-        scores = [line[1][1] for line in result[0]]
-
-        annotated_image = draw_ocr(image_np, boxes, txts, scores, font_path=FONT_PATH)
-        extracted_text += "\n".join(txts) + "\n"
-
-    return extracted_text
-
 
 # Streamlit UI
 st.title("🔍 Smart Invoice OCR - PaddleOCR + OpenAI")
 uploaded_file = st.file_uploader("📄 Upload file PDF Invoice", type="pdf", accept_multiple_files=True)
 
 # --- Fungsi Ekstraksi Teks dari PaddleOCR ---
-# def extract_text_with_paddleocr(pdf_file):
-#     images = convert_from_bytes(pdf_file.read())
-#     extracted_text = ""
-#     for idx, image in enumerate(images):
-#         # st.subheader(f"🖼️ Halaman {idx + 1}")
-#         # st.image(image, caption="Gambar Asli", use_container_width=True)
-#         image_np = np.array(image)
-#         result = ocr.ocr(image_np, cls=True)
+def extract_text_with_paddleocr(pdf_file):
+    images = convert_from_bytes(pdf_file.read())
+    extracted_text = ""
+    for idx, image in enumerate(images):
+        # st.subheader(f"🖼️ Halaman {idx + 1}")
+        # st.image(image, caption="Gambar Asli", use_container_width=True)
+        image_np = np.array(image)
+        result = ocr.ocr(image_np, cls=True)
 
-#         boxes = [line[0] for line in result[0]]
-#         txts = [line[1][0] for line in result[0]]
-#         scores = [line[1][1] for line in result[0]]
+        boxes = [line[0] for line in result[0]]
+        txts = [line[1][0] for line in result[0]]
+        scores = [line[1][1] for line in result[0]]
 
-#         annotated_image = draw_ocr(image_np, boxes, txts, scores, font_path=FONT_PATH)
-#         annotated_image = Image.fromarray(annotated_image)
-#         # st.image(annotated_image, caption="🔎 Hasil Deteksi OCR")
+        annotated_image = draw_ocr(image_np, boxes, txts, scores, font_path=FONT_PATH)
+        annotated_image = Image.fromarray(annotated_image)
+        # st.image(annotated_image, caption="🔎 Hasil Deteksi OCR")
 
-#         extracted_text += "\n".join(txts) + "\n"
+        extracted_text += "\n".join(txts) + "\n"
 
-#     return extracted_text
+    return extracted_text
 
 # --- Fungsi Strukturkan JSON dari OpenAI ---
 def structure_invoice_data(extracted_text):
