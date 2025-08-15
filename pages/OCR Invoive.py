@@ -1,5 +1,5 @@
 import streamlit as st
-from paddleocr import PaddleOCR, draw_ocr
+from paddleocr import PaddleOCR
 from pdf2image import convert_from_bytes
 from PIL import Image
 import numpy as np
@@ -24,7 +24,9 @@ FONT_PATH = "C:/Windows/Fonts/arial.ttf"
 # ocr = PaddleOCR(use_angle_cls=True, lang='en')
 @st.cache_resource
 def load_ocr_model():
-    return PaddleOCR(use_angle_cls=True, lang='en')
+    return PaddleOCR(use_angle_cls=True, lang="en")
+
+
 ocr = load_ocr_model()
 
 
@@ -34,7 +36,10 @@ client = OpenAI(api_key=api_key) if api_key else None
 
 # Streamlit UI
 st.title("🔍 Smart Invoice OCR - PaddleOCR + OpenAI")
-uploaded_file = st.file_uploader("📄 Upload file PDF Invoice", type="pdf", accept_multiple_files=True)
+uploaded_file = st.file_uploader(
+    "📄 Upload file PDF Invoice", type="pdf", accept_multiple_files=True
+)
+
 
 # --- Fungsi Ekstraksi Teks dari PaddleOCR ---
 def extract_text_with_paddleocr(pdf_file):
@@ -57,6 +62,7 @@ def extract_text_with_paddleocr(pdf_file):
         extracted_text += "\n".join(txts) + "\n"
 
     return extracted_text
+
 
 # --- Fungsi Strukturkan JSON dari OpenAI ---
 def structure_invoice_data(extracted_text):
@@ -127,9 +133,12 @@ def structure_invoice_data(extracted_text):
     response = client.chat.completions.create(
         model="gpt-4",
         messages=[
-            {"role": "system", "content": "You are an assistant that extracts information from Invoice."},
-            {"role": "user", "content": prompt}
-        ]
+            {
+                "role": "system",
+                "content": "You are an assistant that extracts information from Invoice.",
+            },
+            {"role": "user", "content": prompt},
+        ],
     )
 
     structured_data = response.choices[0].message.content.strip()
@@ -137,6 +146,7 @@ def structure_invoice_data(extracted_text):
         return json.loads(structured_data)
     except json.JSONDecodeError:
         return {"error": "❌ Gagal parsing JSON dari LLM."}
+
 
 # --- Fungsi Perhitungan Tambahan (DPP, VAT) ---
 def calculate_invoice_fields(data):
@@ -160,7 +170,7 @@ def calculate_invoice_fields(data):
             # "diskon": discount,
             # "subtotal_setelah_diskon": after_discount,
             "dpp": dpp,
-            "ppn_11_persen": calculated_vat
+            "ppn_11_persen": calculated_vat,
         }
     except Exception as e:
         return {"error": f"Gagal menghitung: {str(e)}"}
@@ -182,7 +192,6 @@ def save_to_excel(structured_invoice_data, calculated_fields):
     invoice_total = structured_invoice_data.get("invoice_total", "")
     currency = structured_invoice_data.get("currency", "")
     bank_details = structured_invoice_data.get("bank_details", {})
-    
 
     ws.append(["Seller Identity"])
     ws.append(["Company Name", seller_identity.get("company_name", "")])
@@ -205,7 +214,12 @@ def save_to_excel(structured_invoice_data, calculated_fields):
     ws.append(["Invoice No", invoice_details.get("invoice_no", "")])
     ws.append(["Invoice Date", invoice_details.get("invoice_date", "")])
     ws.append(["Order/PO Number", invoice_details.get("order_po_number", "")])
-    ws.append(["Term of Payment/Due Date", invoice_details.get("term_of_payment_due_date", "")])
+    ws.append(
+        [
+            "Term of Payment/Due Date",
+            invoice_details.get("term_of_payment_due_date", ""),
+        ]
+    )
     ws.append([])
 
     if item_details:
@@ -229,11 +243,10 @@ def save_to_excel(structured_invoice_data, calculated_fields):
     ws.append(["SWIFT Code", bank_details.get("swift_code", "")])
     ws.append([])
 
-    
-
     wb.save(output)
     output.seek(0)
     return output
+
 
 # --- Streamlit Logic ---
 if uploaded_file:
@@ -260,7 +273,6 @@ if uploaded_file:
             if "price including vat" in extracted_text.lower():
                 structured_data["vat"] = calculated_fields.get("ppn_11_persen", None)
 
-
             # 5. Tampilkan hasil
             # st.subheader("📋 Teks Hasil Ekstraksi:")
             # st.text(extracted_text)
@@ -271,12 +283,14 @@ if uploaded_file:
             st.subheader(f"🧮 Perhitungan Tambahan - Invoice {idx+1}")
             st.json(calculated_fields)
 
-            st.session_state.results.append({
-                "idx": idx + 1,
-                "image": pdf_bytes,
-                "data": structured_data,
-                "calculation": calculated_fields
-            })
+            st.session_state.results.append(
+                {
+                    "idx": idx + 1,
+                    "image": pdf_bytes,
+                    "data": structured_data,
+                    "calculation": calculated_fields,
+                }
+            )
 
 if "results" in st.session_state:
     for result in st.session_state.results:
@@ -290,5 +304,5 @@ if "results" in st.session_state:
             data=excel_file,
             file_name=f"invoice_data_{idx}.xlsx",
             mime="application/vnd.ms-excel",
-            key=f"download_result_{idx}"
+            key=f"download_result_{idx}",
         )
